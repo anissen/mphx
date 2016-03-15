@@ -6,7 +6,7 @@ import luxe.Vector;
 import mphx.client.Client;
 
 class Main extends luxe.Game {
-    var client :Client = null;
+    var client :Client<ClientEvent, ServerEvent> = null;
     var my_turn :Bool = false;
     var room_id :String;
     var boxes :Array<Box>;

@@ -22,24 +22,22 @@ class Main extends luxe.Game {
         joined = false;
         playerData = new Map();
 
-        client = new Client('127.0.0.1', 8001);
+        function handler(event :ClientEvent) {
+            switch (event) {
+                case Accepted(playerId): myPlayerId = myPlayerId; joined: true;
+                case Moved(playerId, pos): playerData[playerId] = pos;
+            }
+        }
+
+        client = new Client<ClientEvent, ServerEvent>('127.0.0.1', 8001, handler);
 		client.connect();
 
-        client.send('join');
-
-        client.events.on('accepted', function (data :{ playerId :String }) {
-            myPlayerId = data.playerId;
-            joined = true;
-		});
-
-		client.events.on('moved', function (data :{ playerId :String, pos :Position }) {
-            playerData[data.playerId] = data.pos;
-		});
+        client.send();
     }
 
     override function onmousedown(e :MouseEvent) {
         if (!joined) return;
-        client.send('move', { playerId: myPlayerId, pos: { x: e.pos.x, y: e.pos.y } });
+        client.send(Move(myPlayerId, { x: e.pos.x, y: e.pos.y }));
     }
 
     override function onrender() {

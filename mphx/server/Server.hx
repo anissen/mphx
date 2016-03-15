@@ -10,18 +10,18 @@ import mphx.tcp.NetSock;
 
 import mphx.server.Room;
 
-class Server
+class Server<TClient, TServer>
 {
-
 	public var host(default, null):String;
 	public var port(default, null):Int;
 	public var blocking(default, set):Bool = true;
 
-	public var events:mphx.server.EventManager;
+	// public var events:mphx.server.EventManager;
+	var handler :TServer->mphx.tcp.IConnection<TClient>->Void;
 
 	public var rooms:Array<Room>;
 
-	public function new(hostname:String,port:Int)
+	public function new(hostname:String, port:Int, handler :TServer->mphx.tcp.IConnection<TClient>->Void)
 	{
 		buffer = Bytes.alloc(8192);
 
@@ -29,8 +29,9 @@ class Server
 
 		this.host = hostname;
 		this.port = port;
+		this.handler = handler;
 
-		events = new mphx.server.EventManager();
+		// events = new mphx.server.EventManager();
 		rooms = [];
 
 		listener = new Socket();
@@ -74,7 +75,7 @@ class Server
 				clients.set(client, netsock);
 
 				client.setBlocking(false);
-				client.custom = protocol = new mphx.tcp.Connection(events);
+				client.custom = protocol = new mphx.tcp.Connection<TServer>(handler);
 				protocol.onAccept(netsock);
 			}
 			else
@@ -125,7 +126,7 @@ class Server
 						var socket = protocol.getContext().socket;
 						var netsock = new mphx.tcp.NetSock(socket);
 
-						socket.custom = protocol = new mphx.tcp.WebsocketProtocol(events);
+						socket.custom = protocol = new mphx.tcp.WebsocketProtocol<TServer>(handler);
 						protocol.onAccept(netsock);
 					}
 
@@ -143,12 +144,12 @@ class Server
 		}
 	}
 
-	public function broadcast(event:String, ?data:Dynamic):Bool
+	public function broadcast(event :TClient) :Bool
 	{
 		var success = true;
 		for (client in clients)
 		{
-			if (!cast(client.socket.custom, mphx.tcp.IConnection).send(event,data))
+			if (!cast(client.socket.custom, mphx.tcp.IConnection).send(event))
 			{
 				success = false;
 			}

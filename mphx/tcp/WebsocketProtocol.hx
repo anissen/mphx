@@ -32,7 +32,7 @@ enum Opcode
 * WebSocket protocol (RFC 6455)
 */
 
-class WebsocketProtocol extends Connection
+class WebsocketProtocol<T> extends Connection<T>
 {
 	var _host:String;
 	var _url:String;
@@ -61,9 +61,9 @@ class WebsocketProtocol extends Connection
 
 	static inline var MAGIC_STRING:String = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-	public function new (events)
+	public function new (_handler :T->IConnection->Void)
 	{
-		super(events);
+		super(_handler);
 		_headers = [];
 	}
 

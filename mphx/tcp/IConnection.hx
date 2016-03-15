@@ -2,9 +2,9 @@ package mphx.tcp;
 
 import haxe.io.Input;
 
-interface IConnection
+interface IConnection<T>
 {
-	function send (event:String,?data:Dynamic):Bool;
+	function send(event: T) :Bool;
 	function onConnect(cnx:NetSock):Void;
 	function onAccept(cnx:NetSock):Void;
 	function dataReceived(input:Input):Void;

@@ -1,18 +1,19 @@
 package;
 
 class Main {
+
     public static function main() {
         var players = 0;
-		var server = new mphx.server.Server('127.0.0.1', 8001);
+        var server :mphx.server.Server<ServerEvent> = null;
 
-        server.events.on('join', function(data :Dynamic, client :mphx.tcp.IConnection) {
-            client.send('accepted', { playerId: 'Player ' + (++players) });
-		});
+        function handler(event :ServerEvent, client :mphx.tcp.IConnection) {
+            switch (event) {
+                case Join: client.send(Accepted('Player ' + (++players)));
+                case Move(playerId, pos): server.broadcast(Moved(playerId, pos));
+            }
+		}
 
-		server.events.on('move', function(data :Dynamic, client :mphx.tcp.IConnection) {
-			server.broadcast('moved', data);
-		});
-
+		server = new mphx.server.Server<ClientEvent, ServerEvent>('127.0.0.1', 8001, handler);
 		server.start();
 	}
 }

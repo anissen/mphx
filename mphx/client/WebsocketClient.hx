@@ -3,12 +3,12 @@ package mphx.client;
 import mphx.serialization.ISerializer;
 
 //The client class that is used with JS websockets.
-class WebsocketClient implements IClient
+class WebsocketClient<TClient, TServer> implements IClient
 {
 
 	var websocket : js.html.WebSocket;
 
-	public var events:mphx.client.EventManager;
+	// public var events:mphx.client.EventManager;
 	public var serializer:ISerializer;
 
 	var port:Int;
@@ -22,7 +22,7 @@ class WebsocketClient implements IClient
 
 	public function new(_ip:String,_port:Int)
 	{
-		events = new mphx.client.EventManager();
+		// events = new mphx.client.EventManager();
 
 		serializer = new mphx.serialization.HaxeSerializer();
 
@@ -58,7 +58,8 @@ class WebsocketClient implements IClient
 			//The message will have a propety of T
 			//This is the event name/type. It is t to reduce wasted banwidth.
 			//call an event called 't' with the msg data.
-			events.callEvent(msg.t,msg.data);
+			// events.callEvent(msg.t,msg.data);
+			handler(msg.data);
 		}
 	}
 

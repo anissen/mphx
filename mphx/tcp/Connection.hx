@@ -4,17 +4,18 @@ import haxe.io.Input;
 import haxe.io.Bytes;
 import mphx.serialization.ISerializer;
 
-class Connection implements mphx.tcp.IConnection
+class Connection<T> implements mphx.tcp.IConnection
 {
-	public var events:mphx.server.EventManager;
+	// public var events:mphx.server.EventManager;
+	var handler :T->IConnection->Void;
 	public var cnx:NetSock;
 	public var serializer:ISerializer;
 	public var room:mphx.server.Room = null;
 	public var data:Dynamic;
 
 
-	public function new (_events:mphx.server.EventManager){
-		events = _events;
+	public function new (_handler :T->IConnection->Void){
+		handler = _handler;
 		serializer = new mphx.serialization.HaxeSerializer();
 	}
 
@@ -79,7 +80,8 @@ class Connection implements mphx.tcp.IConnection
 		//The message will have a propety of T
 		//This is the event name/type. It is t to reduce wasted banwidth.
 		//call an event called 't' with the msg data.
-		events.callEvent(msg.t,msg.data,this);
+		// events.callEvent(msg.t,msg.data,this);
+		handler(msg.data, this);
 
 	}
 
